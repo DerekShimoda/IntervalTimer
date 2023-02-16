@@ -1,0 +1,74 @@
+﻿<Window x:Class="IntervalTimer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IntervalTimer"
+        mc:Ignorable="d"
+        Title="Task Interval Alerter" Height="200" Width="300">
+    <Window.Resources>
+        <Storyboard x:Key="animate">
+            <ObjectAnimationUsingKeyFrames BeginTime="0:0:0" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Visible</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimation BeginTime="0:0:0.0" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.2"/>
+            <DoubleAnimation BeginTime="0:0:5.0" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5"/>
+            <ObjectAnimationUsingKeyFrames BeginTime="0:0:5.5" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Hidden</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+    <TabControl>
+        
+        <TabItem Header="Interval Timer">
+            <Grid VerticalAlignment="Center">
+                <StackPanel>
+                    <Label x:Name="lblIntervalTime" HorizontalAlignment="Center">Interval time (seconds):</Label>
+                    <TextBox x:Name="txtIntervalTime" Width="{Binding ElementName=lblIntervalTime, Path=ActualWidth}" Height="{Binding ElementName=lblIntervalTime, Path=ActualHeight}" d:Text="test" VerticalAlignment="Center" TextAlignment="Center" FontSize="17"></TextBox>
+                    <TextBlock x:Name="txtCountDown" 
+                               Text="{Binding CountDown, UpdateSourceTrigger=PropertyChanged, StringFormat=N1}" 
+                               Width="{Binding ElementName=lblIntervalTime, Path=ActualWidth}"
+                               Height="{Binding ElementName=lblIntervalTime, Path=ActualHeight}"
+                               TextAlignment="Center" FontSize="17" Visibility="Collapsed" FontWeight="SemiBold"
+                               FontFamily="Global Monospace"/>
+                    <TextBox x:Name="invalidInputWarning" BorderThickness="0" HorizontalAlignment="Center" TextAlignment="Center" Foreground="Red" Visibility="Hidden" Text="Invalid input"/>
+                    <Button x:Name="btnStartTimer" Width="125" Height="25" Click="btnStartTimer_Click" HorizontalContentAlignment="Center" Margin="5">Start</Button>
+                    <Button x:Name="btnStopTimer" Width="125" Height="25" Click="btnStopTimer_Click" Visibility="Collapsed" Margin="5">Stop</Button>
+                </StackPanel>
+                
+            </Grid>
+        </TabItem>
+        <TabItem Header="Stopwatch">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="lblStopwatchTime" Grid.Row="1" Grid.ColumnSpan="99"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Height="30">Elapsed Time (seconds):</Label>
+                <TextBlock x:Name="txtStopwatchTime" Grid.ColumnSpan="99" Width="{Binding ElementName=lblIntervalTime, Path=ActualWidth}" Height="{Binding ElementName=lblIntervalTime, Path=ActualHeight}" Grid.Row="2" Grid.RowSpan="2" TextAlignment="Center" FontSize="17" Text="{Binding StopwatchTime, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                <Button x:Name="btnStartStopwatch" Grid.Column="0" Grid.Row="4" Grid.RowSpan="2" Margin="5 0 5 0" Height="25" Click="btnStartStopwatch_Click">Start</Button>
+                <Button x:Name="btnRestartStopwatch" Grid.Column="1" Grid.Row="4" Grid.RowSpan="2" Margin="5 0 5 0" Height="25" Click="btnRestartStopwatch_Click">Restart</Button>
+                <Button x:Name="btnStopStopwatch" Grid.Column="2" Grid.Row="4" Grid.RowSpan="2" Margin="5 0 5 0" Height="25" Click="btnStopStopwatch_Click">Stop</Button>
+            </Grid>
+        </TabItem>
+        
+    </TabControl>
+    
+</Window>
