@@ -19,6 +19,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace IntervalTimer
 {
@@ -27,6 +29,7 @@ namespace IntervalTimer
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        const int MYACTION_HOTKEY_ID = 1;
         bool TimerRunning { get; set; } = false;
         bool StopwatchRunning { get; set; } = false;
         int _StopwatchTime = 0;
@@ -42,27 +45,37 @@ namespace IntervalTimer
                 OnPropertyChanged();
             }
         }
-        private double _CountDown = 0;
-        public double CountDown 
+
+        private double CountDownTime { get; set; } = 0;
+
+        private double _CurrCountDownTime = 0;
+        public double CurrCountDownTime
         {
 
             get
             {
-                return _CountDown;
+                return _CurrCountDownTime;
             }
             set
             {
-                _CountDown = value;
+                _CurrCountDownTime = value;
                 OnPropertyChanged();
             }
         }
 
+        HotKey _hotKey; 
 
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = this;
             Dispatcher mainThreadDispatcher = Dispatcher.CurrentDispatcher;
+            _hotKey = new HotKey(Key.R, KeyModifier.Shift | KeyModifier.Alt, OnHotKeyHandler);
+        }
+
+        private void OnHotKeyHandler(HotKey hotKey)
+        {
+            RestartTimer();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -75,26 +88,74 @@ namespace IntervalTimer
         private async void btnStartTimer_Click(object sender, RoutedEventArgs e)
         {
             string inputString = this.txtIntervalTime.Text;
-            if (!ValidateNumString(inputString))
+            bool isValid = await ValidateStringConversion(this.txtIntervalTime.Text);
+            if (isValid){
+                CountDownTime = Convert.ToDouble(inputString);
+
+                StartTimer(false);
+            }
+            else
+            {
+                CountDownTime = -1;
+            }
+        }
+
+        private async Task<bool> ValidateStringConversion(string convertingString) 
+        {
+            if (!ValidateNumString(convertingString))
             {
                 await InvalidInput();
-                return;
+                return false;
             }
-
-            double intervalTime = Convert.ToDouble(inputString);
-            
-            TimerRunning = true;
-            btnStartTimer.Visibility = Visibility.Collapsed;
-            btnStopTimer.Visibility = Visibility.Visible;
-            await Timer(intervalTime);
-            
+            else
+            {
+                return true;
+            }
         }
+
+        private async void StartTimer(bool softStart) {
+            TimerRunning = true;
+
+            if (!softStart)
+            {
+                btnStartTimer.Visibility = Visibility.Collapsed;
+                btnStopTimer.Visibility = Visibility.Visible;
+                txtIntervalTime.Visibility = Visibility.Collapsed;
+                txtCountDownTime.Visibility = Visibility.Visible;
+            }
+            await Timer(CountDownTime);
+        }
+
 
         private void btnStopTimer_Click(object sender, RoutedEventArgs e)
         {
+            StopTimer(false);
+        }
+
+        private void StopTimer(bool softStop)
+        {
             TimerRunning = false;
-            btnStartTimer.Visibility = Visibility.Visible;
-            btnStopTimer.Visibility = Visibility.Collapsed;
+            CurrCountDownTime = CountDownTime;
+
+            if (!softStop)
+            {
+                btnStartTimer.Visibility = Visibility.Visible;
+                btnStopTimer.Visibility = Visibility.Collapsed;
+                txtIntervalTime.Visibility = Visibility.Visible;
+                txtCountDownTime.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void btnRestartTimer_Click(object sender, RoutedEventArgs e)
+        {
+            RestartTimer();
+        }
+
+        private async void RestartTimer()
+        {
+            StopTimer(true);
+            await Task.Delay(1);
+            StartTimer(true);
         }
 
         private Task InvalidInput()
@@ -126,8 +187,7 @@ namespace IntervalTimer
 
         private async Task Timer(double intervalTimeSec)
         {
-            txtIntervalTime.Visibility = Visibility.Collapsed;
-            txtCountDown.Visibility = Visibility.Visible;
+            
             new Thread(async () =>
             {
                 while (TimerRunning)
@@ -136,11 +196,11 @@ namespace IntervalTimer
                     if (success) PlaySound();
 
                 }
-                Application.Current.Dispatcher.Invoke((Action)delegate ()
-                {
-                    txtIntervalTime.Visibility = Visibility.Visible;
-                    txtCountDown.Visibility = Visibility.Collapsed;
-                }, null);
+                //Application.Current.Dispatcher.Invoke((Action)delegate ()
+                //{
+                //    txtIntervalTime.Visibility = Visibility.Visible;
+                //    txtCountDownTime.Visibility = Visibility.Collapsed;
+                //}, null);
 
             }).Start();
         }
@@ -153,7 +213,7 @@ namespace IntervalTimer
             {
                 Dispatcher.Invoke(() =>
                 {
-                    CountDown = Math.Round(intervalTimeSec - stopwatch.Elapsed.TotalSeconds, 2);
+                    CurrCountDownTime = Math.Round(intervalTimeSec - stopwatch.Elapsed.TotalSeconds, 2);
                 });
             }
             if (stopwatch.Elapsed.TotalSeconds < intervalTimeSec)

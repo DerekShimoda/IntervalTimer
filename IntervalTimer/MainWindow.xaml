@@ -33,8 +33,8 @@
                 <StackPanel>
                     <Label x:Name="lblIntervalTime" HorizontalAlignment="Center">Interval time (seconds):</Label>
                     <TextBox x:Name="txtIntervalTime" Width="{Binding ElementName=lblIntervalTime, Path=ActualWidth}" Height="{Binding ElementName=lblIntervalTime, Path=ActualHeight}" d:Text="test" VerticalAlignment="Center" TextAlignment="Center" FontSize="17"></TextBox>
-                    <TextBlock x:Name="txtCountDown" 
-                               Text="{Binding CountDown, UpdateSourceTrigger=PropertyChanged, StringFormat=N1}" 
+                    <TextBlock x:Name="txtCountDownTime" 
+                               Text="{Binding CurrCountDownTime, UpdateSourceTrigger=PropertyChanged, StringFormat=N1}" 
                                Width="{Binding ElementName=lblIntervalTime, Path=ActualWidth}"
                                Height="{Binding ElementName=lblIntervalTime, Path=ActualHeight}"
                                TextAlignment="Center" FontSize="17" Visibility="Collapsed" FontWeight="SemiBold"
@@ -42,8 +42,10 @@
                     <TextBox x:Name="invalidInputWarning" BorderThickness="0" HorizontalAlignment="Center" TextAlignment="Center" Foreground="Red" Visibility="Hidden" Text="Invalid input"/>
                     <Button x:Name="btnStartTimer" Width="125" Height="25" Click="btnStartTimer_Click" HorizontalContentAlignment="Center" Margin="5">Start</Button>
                     <Button x:Name="btnStopTimer" Width="125" Height="25" Click="btnStopTimer_Click" Visibility="Collapsed" Margin="5">Stop</Button>
+                    <Button x:Name="btnRestartTimer" Width="125" Height="25" Click="btnRestartTimer_Click" HorizontalContentAlignment="Center" Margin="5">Restart</Button>
                 </StackPanel>
                 
+
             </Grid>
         </TabItem>
         <TabItem Header="Stopwatch">
